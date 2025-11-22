@@ -49,7 +49,7 @@ enum layers {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 [MAIN] = LAYOUT_tkl_ansi(
 //    0            1            2            3            4            5            6            7            8            9            10           11           12           13           14
-/*0*/ KC_Q,        KC_W,        KC_R,        KC_U,        KC_NO,       KC_NO,       KC_NO,       KC_I,        KC_NO,       KC_O,        KC_E,        KC_P,        KC_NO,       KC_SCRL,     QK_AREP,
+/*0*/ KC_Q,        KC_W,        KC_R,        KC_U,        KC_NO,       KC_NO,       KC_NO,       KC_I,        KC_NO,       KC_O,        KC_E,        KC_P,        KC_NO,       DM_PLY1,     DM_PLY2,
 /*1*/ KC_NO,       KC_NO,       KC_B,        KC_N,        KC_DOWN,     KC_RIGHT,    KC_F12,      KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_SLSH,     KC_LEFT,     KC_RGUI,     KC_NO,
 /*2*/ KC_Z,        KC_X,        KC_V,        KC_M,        KC_NO,       KC_NO,       KC_ENT,      KC_COMM,     KC_NO,       KC_DOT,      KC_C,        KC_NO,       KC_RSFT,     KC_NO,       KC_RCTL,
 /*3*/ KC_1,        KC_2,        KC_4,        KC_7,        KC_NO,       KC_NO,       KC_F10,      KC_8,        KC_PGDN,     KC_9,        KC_3,        KC_0,        KC_END,      KC_PSCR,     KC_F5,
@@ -60,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [UTILS] = LAYOUT_tkl_ansi(
 //    0            1            2            3            4            5            6            7            8            9            10           11           12           13           14
-/*0*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,
+/*0*/ DM_REC1,     DM_REC2,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,
 /*1*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     MS_DOWN,     MS_RGHT,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     MS_LEFT,     KC_TRNS,     KC_TRNS,
 /*2*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_MPLY,     KC_MPRV,     KC_TRNS,     KC_MNXT,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,
 /*3*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_MUTE,     KC_TRNS,     KC_TRNS,     KC_TRNS,
@@ -84,35 +84,18 @@ void keyboard_post_init_user(void) {
     gpio_write_pin(GP2, false);
 }
 
-
 // SHIFT OVERRIDES
-const key_override_t shift_left_override = ko_make_with_layers(
-    MOD_MASK_SHIFT,     // when Shift is held
-    MS_LEFT,            // and you press the MS_LEFT key
-    QK_MOUSE_WHEEL_RIGHT,// send mouse wheel left instead
-    (1 << UTILS)        // only apply on UTILS layer
+const key_override_t shift_left_override = ko_make_with_layers(MOD_MASK_SHIFT,       // when Shift is held
+                                                               MS_LEFT,              // and you press the MS_LEFT key
+                                                               QK_MOUSE_WHEEL_RIGHT, // send mouse wheel left instead
+                                                               (1 << UTILS)          // only apply on UTILS layer
 );
 
-const key_override_t shift_right_override = ko_make_with_layers(
-    MOD_MASK_SHIFT,
-    MS_RGHT,
-    QK_MOUSE_WHEEL_LEFT,
-    (1 << UTILS)
-);
+const key_override_t shift_right_override = ko_make_with_layers(MOD_MASK_SHIFT, MS_RGHT, QK_MOUSE_WHEEL_LEFT, (1 << UTILS));
 
-const key_override_t shift_up_override = ko_make_with_layers(
-    MOD_MASK_SHIFT,
-    MS_UP,
-    QK_MOUSE_WHEEL_DOWN,
-    (1 << UTILS)
-);
+const key_override_t shift_up_override = ko_make_with_layers(MOD_MASK_SHIFT, MS_UP, QK_MOUSE_WHEEL_DOWN, (1 << UTILS));
 
-const key_override_t shift_down_override = ko_make_with_layers(
-    MOD_MASK_SHIFT,
-    MS_DOWN,
-    QK_MOUSE_WHEEL_UP,
-    (1 << UTILS)
-);
+const key_override_t shift_down_override = ko_make_with_layers(MOD_MASK_SHIFT, MS_DOWN, QK_MOUSE_WHEEL_UP, (1 << UTILS));
 
 // Put them into the override array:
 const key_override_t *key_overrides[] = {
@@ -120,5 +103,16 @@ const key_override_t *key_overrides[] = {
     &shift_right_override,
     &shift_up_override,
     &shift_down_override,
-    NULL,  // terminator
+    NULL, // terminator
 };
+
+
+bool dynamic_macro_record_start_user(int8_t direction) {
+    gpio_write_pin(GP2, true);
+    return true;
+}
+
+bool dynamic_macro_record_end_user(int8_t direction) {
+    gpio_write_pin(GP2, false);
+    return true;
+}
