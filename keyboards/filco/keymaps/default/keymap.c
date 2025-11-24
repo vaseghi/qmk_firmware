@@ -51,7 +51,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 //    0            1            2            3            4            5            6            7            8            9            10           11           12           13           14
 /*0*/ KC_Q,        KC_W,        KC_R,        KC_U,        KC_NO,       KC_NO,       KC_NO,       KC_I,        KC_NO,       KC_O,        KC_E,        KC_P,        KC_NO,       DM_PLY1,     DM_PLY2,
 /*1*/ KC_NO,       KC_NO,       KC_B,        KC_N,        KC_DOWN,     KC_RIGHT,    KC_F12,      KC_NO,       KC_NO,       KC_NO,       KC_NO,       KC_SLSH,     KC_LEFT,     KC_RGUI,     KC_NO,
-/*2*/ KC_Z,        KC_X,        KC_V,        KC_M,        KC_NO,       KC_NO,       KC_ENT,      KC_COMM,     KC_NO,       KC_DOT,      KC_C,        KC_NO,       KC_RSFT,     KC_NO,       KC_RCTL,
+/*2*/ KC_Z,        KC_X,        KC_V,        KC_M,        KC_NO,       KC_NO,       KC_ENT,      KC_COMM,     KC_NO,       KC_DOT,      KC_C,        KC_NO,       QK_LEAD,     KC_NO,       KC_RCTL,
 /*3*/ KC_1,        KC_2,        KC_4,        KC_7,        KC_NO,       KC_NO,       KC_F10,      KC_8,        KC_PGDN,     KC_9,        KC_3,        KC_0,        KC_END,      KC_PSCR,     KC_F5,
 /*4*/ KC_GRV,      KC_F1,       KC_5,        KC_6,        KC_DEL,      KC_INS,      KC_F9,       KC_EQL,      KC_PGUP,     KC_F8,       KC_F2,       KC_MINS,     KC_HOME,     KC_NO,       KC_LCTL,
 /*5*/ KC_A,        KC_S,        KC_F,        KC_J,        KC_NO,       KC_NO,       KC_BSLS,     KC_K,        KC_NO,       KC_L,        KC_D,        KC_SCLN,     KC_NO,       KC_RALT,     KC_NO,
@@ -60,7 +60,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 ),
 [UTILS] = LAYOUT_tkl_ansi(
 //    0            1            2            3            4            5            6            7            8            9            10           11           12           13           14
-/*0*/ DM_REC1,     DM_REC2,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,
+/*0*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     DM_REC1,     DM_REC2,
 /*1*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     MS_DOWN,     MS_RGHT,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     MS_LEFT,     KC_TRNS,     KC_TRNS,
 /*2*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_MPLY,     KC_MPRV,     KC_TRNS,     KC_MNXT,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,
 /*3*/ KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_TRNS,     KC_MUTE,     KC_TRNS,     KC_TRNS,     KC_TRNS,
@@ -115,4 +115,24 @@ bool dynamic_macro_record_start_user(int8_t direction) {
 bool dynamic_macro_record_end_user(int8_t direction) {
     gpio_write_pin(GP2, false);
     return true;
+}
+
+
+void leader_start_user(void) {
+    gpio_write_pin(GP14, true);
+}
+
+void leader_end_user(void) {
+    if (leader_sequence_one_key(KC_Y)) {
+        // Leader, f => Types the below string
+        SEND_STRING(SS_LGUI("c"));
+    } else if (leader_sequence_two_keys(KC_D, KC_D)) {
+        // Leader, d, d => Ctrl+A, Ctrl+C
+        SEND_STRING(SS_LGUI("a") SS_LGUI("x"));
+    } else if (leader_sequence_two_keys(KC_A, KC_S)) {
+        // Leader, a, s => GUI+S
+        tap_code16(LGUI(KC_S));
+    }
+
+    gpio_write_pin(GP14, false);
 }
